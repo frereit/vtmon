@@ -1,0 +1,34 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[project]
+name =  "vtmon"
+authors = [
+    {name = "Frederik Reiter", email = "vtmon@frereit.de"},
+]
+description = "Get a notification when any hash from a list of hashes is publicly uploaded to VirusTotal" 
+readme = "README.md"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
+]
+requires-python = ">=3.11.2"
+dynamic = ["version"]
+dependencies = [
+    "apprise~=1.8.0",
+    "requests~=2.32.3",
+    "vt-py~=0.18.2"
+]
+
+[project.scripts]
+vtmon = "vtmon.__main__:main"
+
+[project.optional-dependencies]
+dev = [
+    "black~=24.4.2",
+]
