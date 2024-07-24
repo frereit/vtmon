@@ -8,7 +8,7 @@ import logging
 import vt
 import apprise
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 
 @dataclass
@@ -71,7 +71,7 @@ class VTMon:
         self._hourly_quota = hourly_quota
         """Maximum amount of VirusTotal API requests per hour."""
 
-        self._founds = dict()
+        self._founds: dict[str, vt.Object] = dict()
 
         if daily_quota is None or hourly_quota is None:
             logging.debug("Getting API limits from VirusTotal API")
@@ -101,6 +101,7 @@ class VTMon:
             dict[str, vt.Object]: The found hashes and their corresponding files.
             int: The number of requests made to VirusTotal.
         """
+        assert self._hourly_quota
         request_delay_s = 3600 / self._hourly_quota  # 3600 seconds in an hour
         founds = {}
         reqs = 0
@@ -137,6 +138,7 @@ class VTMon:
             founds, reqs = self.query_new(hashes)
             # Assume reqs is a good estimate for how many requests we make to VirusTotal "per round".
             # 86400 seconds in an hour.
+            assert self._hourly_quota
             query_delay_s = 86400 / self._hourly_quota * reqs
             hashes = yield founds
             time.sleep(max(query_delay_s, 5))  # Wait at least 5 seconds
@@ -159,7 +161,7 @@ class VTMon:
             infos += list(filter(lambda i: i.value == found_file.sha256, hash_infos))
             formatted = f"* {found_hash}"
             if infos:
-                formatted += f" ({', '.join(i.comment.strip() for i in infos)})"
+                formatted += f" ({', '.join(i.comment.strip() for i in infos if i.comment)})"
             # The .replace is needed because vt-py uses the deprecated .utcfromtimestamp API.
             # https://github.com/VirusTotal/vt-py/pull/194
             formatted += f"""

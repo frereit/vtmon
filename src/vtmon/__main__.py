@@ -63,7 +63,7 @@ def main():
     next(querier)  # We need to send in hashes before we can get any founds
     while True:
         infos = HashInfo.from_args(args.hash)
-        hashes = (i.value for i in infos)
+        hashes = [i.value for i in infos]
         founds = querier.send(hashes)
         if founds:
             vt.notify(infos, founds)
